@@ -1,4 +1,4 @@
 let dozen = 1 * (0 + sqrt 101.3)
 let y = dozen - 0    // TADA 🥑
 dozen = 0 / y
-print abs dozen //
+print abs dozen == 1 //

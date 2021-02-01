@@ -11,14 +11,18 @@ const aelGrammar = ohm.grammar(String.raw`Ael {
   Statement = let id "=" Exp                  --vardec
             | Var "=" Exp                     --assign
             | print Exp                       --print
+  Equ       = Equ "==" Exp                  --binary
+            | Exp
   Exp       = Exp ("+" | "-") Term            --binary
             | Term
-  Term      = Term ("*"| "/") Factor          --binary
+  Term      = Term ("*"| "/"|"%") Factor          --binary
             | Factor
-  Factor    = Var
-            | num
+  Factor    = Exponent "**" Factor           --binary
             | "(" Exp ")"                     --parens
             | ("-" | abs | sqrt) Factor       --unary
+            | Exponent
+  Exponent  = Var
+            | num
   Var       = id
   num       = digit+ ("." digit+)?
   let       = "let" ~alnum
