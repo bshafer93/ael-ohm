@@ -8,21 +8,22 @@ import * as ast from "./ast.js"
 
 const aelGrammar = ohm.grammar(String.raw`Ael {
   Program   = Statement+
-  Statement = let id "=" Exp                  --vardec
-            | Var "=" Exp                     --assign
-            | print Exp                       --print
+  Statement = let id "=" Equ                  --vardec
+            | Var "=" Equ                     --assign
+            | print Equ                       --print
   Equ       = Equ "==" Exp                  --binary
             | Exp
   Exp       = Exp ("+" | "-") Term            --binary
             | Term
-  Term      = Term ("*"| "/"|"%") Factor          --binary
-            | Factor
-  Factor    = Exponent "**" Factor           --binary
-            | "(" Exp ")"                     --parens
-            | ("-" | abs | sqrt) Factor       --unary
+  Term      = Term ("*"| "/"| "%") Exponent          --binary
             | Exponent
-  Exponent  = Var
+  Exponent  = Factor "**" Exponent           --binary
+            | Factor
+  Factor    = Var
             | num
+            | "(" Equ ")"                     --parens
+            | ("-" | abs | sqrt) Factor       --unary
+
   Var       = id
   num       = digit+ ("." digit+)?
   let       = "let" ~alnum
@@ -47,6 +48,9 @@ const astBuilder = aelGrammar.createSemantics().addOperation("ast", {
   Statement_print(_print, expression) {
     return new ast.PrintStatement(expression.ast())
   },
+  Equ_binary(left, op, right) {
+    return new ast.BinaryExpression(op.sourceString, left.ast(), right.ast())
+  },
   Exp_binary(left, op, right) {
     return new ast.BinaryExpression(op.sourceString, left.ast(), right.ast())
   },
@@ -58,6 +62,9 @@ const astBuilder = aelGrammar.createSemantics().addOperation("ast", {
   },
   Factor_parens(_open, expression, _close) {
     return expression.ast()
+  },
+  Exponent_binary(left, op, right) {
+    return new ast.BinaryExpression(op.sourceString, left.ast(), right.ast())
   },
   Var(id) {
     return new ast.IdentifierExpression(this.sourceString)
