@@ -27,17 +27,23 @@ Here is the grammar in Ohm notation:
 ```
 Ael {
   Program   = Statement+
-  Statement = let id "=" Exp                  --variable
-            | id "=" Exp                      --assign
-            | print Exp                       --print
+  Statement = let id "=" Equ                  --vardec
+            | Var "=" Equ                     --assign
+            | print Equ                       --print
+  Equ       = Equ "==" Exp                  --binary
+            | Exp
   Exp       = Exp ("+" | "-") Term            --binary
             | Term
-  Term      = Term ("*"| "/") Factor          --binary
+  Term      = Term ("*"| "/"| "%") Exponent          --binary
+            | Exponent
+  Exponent  = Factor "**" Exponent           --binary
             | Factor
-  Factor    = id
+  Factor    = Var
             | num
-            | "(" Exp ")"                     --parens
+            | "(" Equ ")"                     --parens
             | ("-" | abs | sqrt) Factor       --unary
+
+  Var       = id
   num       = digit+ ("." digit+)?
   let       = "let" ~alnum
   print     = "print" ~alnum
