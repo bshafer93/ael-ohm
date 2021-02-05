@@ -15,14 +15,15 @@ const aelGrammar = ohm.grammar(String.raw`Ael {
             | Exp
   Exp       = Exp ("+" | "-") Term            --binary
             | Term
-  Term      = Term ("*"| "/"| "%") Exponent          --binary
+  Term      = Term ("*"| "/"| "%") Unary          --binary
+            | Unary
+  Unary    = "(" Equ ")"                     --parens
+            | ("-" | abs | sqrt) Unary       --unary
             | Exponent
   Exponent  = Factor "**" Exponent           --binary
             | Factor
   Factor    = Var
             | num
-            | "(" Equ ")"                     --parens
-            | ("-" | abs | sqrt) Factor       --unary
 
   Var       = id
   num       = digit+ ("." digit+)?
@@ -57,10 +58,10 @@ const astBuilder = aelGrammar.createSemantics().addOperation("ast", {
   Term_binary(left, op, right) {
     return new ast.BinaryExpression(op.sourceString, left.ast(), right.ast())
   },
-  Factor_unary(op, operand) {
+  Unary_unary(op, operand) {
     return new ast.UnaryExpression(op.sourceString, operand.ast())
   },
-  Factor_parens(_open, expression, _close) {
+  Unary_parens(_open, expression, _close) {
     return expression.ast()
   },
   Exponent_binary(left, op, right) {

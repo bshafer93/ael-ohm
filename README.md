@@ -34,14 +34,15 @@ Ael {
             | Exp
   Exp       = Exp ("+" | "-") Term            --binary
             | Term
-  Term      = Term ("*"| "/"| "%") Exponent          --binary
+  Term      = Term ("*"| "/"| "%") Unary          --binary
+            | Unary
+  Unary    = "(" Equ ")"                     --parens
+            | ("-" | abs | sqrt) Unary       --unary
             | Exponent
   Exponent  = Factor "**" Exponent           --binary
             | Factor
   Factor    = Var
             | num
-            | "(" Equ ")"                     --parens
-            | ("-" | abs | sqrt) Factor       --unary
 
   Var       = id
   num       = digit+ ("." digit+)?
